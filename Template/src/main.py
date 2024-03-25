@@ -18,40 +18,43 @@ def main():
 def generer_docker_compose(datastruct):
     docker_compose = "version: '3.7'\nservices:\n"
     proxy_count = 1
+    ssh_pass = "root"
+    port_count = 2222  # Commence à exposer les conteneurs à partir de ce port
 
-    # Générer les services Ubuntu pour l'équipe Bleue
+     # Générer les services Ubuntu pour l'équipe Bleue
     for i in range(1, datastruct.get_nb_bleu() + 1):
         docker_compose += (
             f"  ubuntubleu{i}:\n"
-            f"    build: ../Ubuntu\n"
+            f"    build:\n"
+            f"      context: ../Ubuntu\n"
+            f"      args:\n"
+            f"        SSH_PASS: {ssh_pass}\n"
             f"    container_name: ubuntu_ssh_Bleu{i}\n"
+            f"    ports:\n"
+            f"      - '{port_count}:{port_count}'\n"
         )
+        port_count += 1  # Incrémente le numéro de port pour le prochain conteneur
 
     # Générer les services Ubuntu pour l'équipe Rouge
     for i in range(1, datastruct.get_nb_rouge() + 1):
         docker_compose += (
             f"  ubunturouge{i}:\n"
-            f"    build: ../Ubuntu\n"
+            f"    build:\n"
+            f"      context: ../Ubuntu\n"
+            f"      args:\n"
+            f"        SSH_PASS: {ssh_pass}\n"
             f"    container_name: ubuntu_ssh_Rouge{i}\n"
-        )
-
-    # Générer un service de proxy TCP pour chaque service Ubuntu
-    for i in range(1, datastruct.get_nb_bleu() + datastruct.get_nb_rouge() + 1):
-        port = 2222 + (proxy_count - 1)
-        team = "bleu" if i <= datastruct.get_nb_bleu() else "rouge"
-        container_index = i if i <= datastruct.get_nb_bleu() else i - datastruct.get_nb_bleu()
-        docker_compose += (
-            f"  ssh-proxy{proxy_count}:\n"
-            f"    image: tecnativa/tcp-proxy\n"
-            f"    environment:\n"
-            f"      LISTEN: ':{port}'\n"
-            f"      TALK: 'ubuntu{team}{container_index}:22'\n"
             f"    ports:\n"
-            f"      - '{port}:{port}'\n"
-            f"    depends_on:\n"
-            f"      - ubuntu{team}{container_index}\n"
+            f"      - '{port_count}:{port_count}'\n"
         )
-        proxy_count += 1
+        port_count += 1  # Continue d'incrémenter le numéro de port pour chaque conteneur
+
+        # Déclaration du réseau personnalisé "hack réseau"
+    docker_compose += (
+        "\nnetworks:\n"
+        "  reseau:\n"
+        "    driver: bridge\n"
+    )
 
     return docker_compose
 
