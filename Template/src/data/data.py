@@ -36,10 +36,10 @@ class data:
         # Fermer le fichier
         self.wb.close()
 
-    def getnbBleu(self):
+    def get_nb_bleu(self):
         return self.nbBleu
 
-    def getnbRouge(self):
+    def get_nb_rouge(self):
         return self.nbRouge
 
     def getParticipantBleu(self, index):

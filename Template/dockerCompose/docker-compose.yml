@@ -1,30 +1,50 @@
 version: '3.7'
-
 services:
-  ubuntu1:
+  ubuntubleu1:
     build: ../Ubuntu
-    container_name: ubuntu_ssh_1
-
-  ubuntu2:
+    container_name: ubuntu_ssh_Bleu1
+  ubuntubleu2:
     build: ../Ubuntu
-    container_name: ubuntu_ssh_2
-
-  ssh-router:
+    container_name: ubuntu_ssh_Bleu2
+  ubunturouge1:
+    build: ../Ubuntu
+    container_name: ubuntu_ssh_Rouge1
+  ubunturouge2:
+    build: ../Ubuntu
+    container_name: ubuntu_ssh_Rouge2
+  ssh-proxy1:
     image: tecnativa/tcp-proxy
     environment:
-      LISTEN: ":2222"
-      TALK: "ubuntu1:22"
+      LISTEN: ':2222'
+      TALK: 'ubuntubleu1:22'
     ports:
-      - "2222:2222"
+      - '2222:2222'
     depends_on:
-      - ubuntu1
-
-  ssh-router2:
+      - ubuntubleu1
+  ssh-proxy2:
     image: tecnativa/tcp-proxy
     environment:
-      LISTEN: ":3333"
-      TALK: "ubuntu2:22"
+      LISTEN: ':2223'
+      TALK: 'ubuntubleu2:22'
     ports:
-      - "3333:3333"
+      - '2223:2223'
     depends_on:
-      - ubuntu2
+      - ubuntubleu2
+  ssh-proxy3:
+    image: tecnativa/tcp-proxy
+    environment:
+      LISTEN: ':2224'
+      TALK: 'ubunturouge1:22'
+    ports:
+      - '2224:2224'
+    depends_on:
+      - ubunturouge1
+  ssh-proxy4:
+    image: tecnativa/tcp-proxy
+    environment:
+      LISTEN: ':2225'
+      TALK: 'ubunturouge2:22'
+    ports:
+      - '2225:2225'
+    depends_on:
+      - ubunturouge2
